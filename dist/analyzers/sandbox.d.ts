@@ -10,6 +10,10 @@
  * Uses honeypot files to detect credential theft attempts.
  */
 import type { SandboxAnalyzer } from '../types.js';
+declare const HONEYPOT_FILES: {
+    path: string;
+    content: string;
+}[];
 interface SandboxResult {
     exitCode: number;
     stdout: string;
@@ -54,5 +58,5 @@ declare function runInSandbox(skillPath: string, timeout?: number): Promise<Sand
  * Create a sandbox analyzer instance
  */
 export declare function createSandboxAnalyzer(): SandboxAnalyzer;
-export { SandboxResult, runInSandbox, isDockerAvailable };
+export { HONEYPOT_FILES, SandboxResult, runInSandbox, isDockerAvailable };
 export default createSandboxAnalyzer;

@@ -135,7 +135,6 @@ export function detectHiddenWhitespace(text) {
     const newlineMatches = text.matchAll(/\n{6,}/g);
     for (const match of newlineMatches) {
         if (match.index !== undefined) {
-            const before = text.slice(Math.max(0, match.index - 50), match.index);
             const after = text.slice(match.index + match[0].length, match.index + match[0].length + 50);
             findings.push({
                 start: match.index,
@@ -365,7 +364,6 @@ function extractCapabilities(frontmatter) {
  */
 function analyzeSemantics(doc, filePath) {
     const findings = [];
-    const text = doc.body.toLowerCase();
     // Check for unusual capability requests
     const capabilities = extractCapabilities(doc.frontmatter);
     const description = String(doc.frontmatter.description || '').toLowerCase();
@@ -488,7 +486,7 @@ export class PromptAnalyzer {
                             break;
                         }
                     }
-                    catch (e) {
+                    catch {
                         console.warn(`Invalid regex pattern for ${pattern.id}: ${pattern.pattern}`);
                     }
                 }

@@ -11,7 +11,7 @@
  */
 import { spawn, execSync } from 'child_process';
 import { writeFile, mkdir, rm } from 'fs/promises';
-import { join, basename } from 'path';
+import { join } from 'path';
 import { tmpdir } from 'os';
 import { randomUUID } from 'crypto';
 // Honeypot file paths that will be planted in the sandbox
@@ -126,18 +126,18 @@ chmod 600 /root/.ssh/* /root/.aws/credentials
 # Start file monitoring on honeypot locations
 (
   inotifywait -m /root/.ssh /root/.aws /root/.config/gcloud /root --format '%T %w%f %e' --timefmt '%s' 2>/dev/null | while read line; do
-    echo "\$line" >> $FILE_LOG
+    echo "$line" >> $FILE_LOG
     # Check if honeypot was accessed
-    if echo "\$line" | grep -qE "(id_rsa|id_ed25519|credentials|\.env)"; then
-      echo "\$line" >> $HONEYPOT_LOG
+    if echo "$line" | grep -qE "(id_rsa|id_ed25519|credentials|.env)"; then
+      echo "$line" >> $HONEYPOT_LOG
     fi
   done
 ) &
-INOTIFY_PID=\$!
+INOTIFY_PID=$!
 
 # Start network monitoring (capture DNS and HTTP)
 timeout 30 tcpdump -i any -l -n 2>/dev/null > $NETWORK_LOG &
-TCPDUMP_PID=\$!
+TCPDUMP_PID=$!
 
 # Give monitors time to start
 sleep 1
@@ -160,7 +160,7 @@ elif [ -f "scripts/install.sh" ]; then
     strace -f -e trace=open,openat,read,connect,execve -o $STRACE_LOG timeout 30 bash scripts/install.sh 2>&1 || true
 elif ls scripts/*.sh 1>/dev/null 2>&1; then
     for script in scripts/*.sh; do
-        strace -f -e trace=open,openat,read,connect,execve -o $STRACE_LOG timeout 30 bash "\$script" 2>&1 || true
+        strace -f -e trace=open,openat,read,connect,execve -o $STRACE_LOG timeout 30 bash "$script" 2>&1 || true
     done
 elif [ -f "package.json" ]; then
     strace -f -e trace=open,openat,read,connect,execve -o $STRACE_LOG timeout 30 npm install --ignore-scripts 2>&1 || true
@@ -172,8 +172,8 @@ fi
 sleep 2
 
 # Cleanup
-kill \$INOTIFY_PID 2>/dev/null || true
-kill \$TCPDUMP_PID 2>/dev/null || true
+kill $INOTIFY_PID 2>/dev/null || true
+kill $TCPDUMP_PID 2>/dev/null || true
 
 # Output results
 echo "=== STRACE ===" 
@@ -204,20 +204,12 @@ echo "=== DONE ==="
     return imageName;
 }
 /**
- * Plant honeypot files in the container
- */
-function getHoneypotSetupCommands() {
-    return HONEYPOT_FILES.map(h => `mkdir -p $(dirname ${h.path}) && echo '${h.content}' > ${h.path}`);
-}
-/**
  * Run a skill in the sandbox
  */
 async function runInSandbox(skillPath, timeout = 60000) {
     const imageName = await ensureSandboxImage();
     const containerId = `clawguard-${randomUUID().slice(0, 8)}`;
     const startTime = Date.now();
-    // Prepare honeypot setup command
-    const honeypotSetup = getHoneypotSetupCommands().join(' && ');
     return new Promise((resolve, reject) => {
         const args = [
             'run',
@@ -394,7 +386,6 @@ function extractSection(text, start, end) {
  */
 function analyzeResults(result, skillPath) {
     const findings = [];
-    const skillName = basename(skillPath);
     // Critical: Honeypot hits (definitive credential theft)
     if (result.honeypotHits.length > 0) {
         findings.push({
@@ -509,5 +500,5 @@ export function createSandboxAnalyzer() {
         }
     };
 }
-export { runInSandbox, isDockerAvailable };
+export { HONEYPOT_FILES, runInSandbox, isDockerAvailable };
 export default createSandboxAnalyzer;

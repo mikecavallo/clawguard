@@ -185,11 +185,35 @@ export class Orchestrator {
         };
     }
     /**
-     * Validate that the skill path exists and is a directory
+     * Validate that the skill path exists, is a directory, and is safe to scan
      */
     async validateSkillPath(skillPath) {
+        // Block scanning sensitive system directories
+        const resolved = path.resolve(skillPath);
+        const BLOCKED_PATHS = ['/', '/etc', '/usr', '/var', '/bin', '/sbin', '/lib', '/boot', '/proc', '/sys', '/dev'];
+        const home = process.env.HOME || '/home';
+        if (BLOCKED_PATHS.includes(resolved)) {
+            throw new Error(`Refusing to scan system directory: ${resolved}`);
+        }
+        // Block scanning home directory root (common accident)
+        if (resolved === home) {
+            throw new Error(`Refusing to scan home directory root. Provide the skill subdirectory path instead.`);
+        }
+        // Detect path traversal attempts in the original input
+        if (skillPath.includes('..') && resolved !== path.resolve(path.normalize(skillPath))) {
+            throw new Error(`Suspicious path traversal detected: ${skillPath}`);
+        }
         try {
-            const stat = await fs.stat(skillPath);
+            // Use lstat to detect symlinks before following them
+            const lstat = await fs.lstat(resolved);
+            if (lstat.isSymbolicLink()) {
+                const realPath = await fs.realpath(resolved);
+                // Ensure the symlink target isn't a blocked directory
+                if (BLOCKED_PATHS.some(bp => realPath === bp || realPath.startsWith(bp + '/'))) {
+                    throw new Error(`Symlink points to restricted directory: ${realPath}`);
+                }
+            }
+            const stat = await fs.stat(resolved);
             if (!stat.isDirectory()) {
                 throw new Error(`Path is not a directory: ${skillPath}`);
             }

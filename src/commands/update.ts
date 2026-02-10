@@ -16,11 +16,6 @@ const GITHUB_RAW_BASE = 'https://raw.githubusercontent.com/mikecavallo/clawguard
 
 const PATTERN_FILES = ['code.yaml', 'deps.yaml', 'prompt.yaml'];
 
-interface PatternMeta {
-  version?: string;
-  count?: number;
-}
-
 /**
  * Extract version comment from YAML header (# version: X.Y.Z)
  */

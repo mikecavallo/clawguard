@@ -75,13 +75,16 @@ export async function checkNpmPackage(packageName: string): Promise<RegistryChec
       };
     }
 
-    const data = await response.json() as any;
-    const latestVersion = data['dist-tags']?.latest;
-    const versionData = latestVersion ? data.versions?.[latestVersion] : null;
-    const timeData = data.time || {};
+    const data = await response.json() as unknown;
+    const d = data as Record<string, unknown>;
+    const distTags = d['dist-tags'] as Record<string, string> | undefined;
+    const latestVersion = distTags?.latest;
+    const versions = d.versions as Record<string, Record<string, unknown>> | undefined;
+    const versionData = latestVersion && versions ? versions[latestVersion] : null;
+    const timeData = (d.time || {}) as Record<string, string>;
 
     // Check for install scripts in the latest version
-    const scripts = versionData?.scripts || {};
+    const scripts = (versionData?.scripts || {}) as Record<string, unknown>;
     const hasInstallScripts = !!(
       scripts.preinstall ||
       scripts.install ||
@@ -99,19 +102,22 @@ export async function checkNpmPackage(packageName: string): Promise<RegistryChec
       // Ignore download fetch errors
     }
 
+    const maintainersList = (d.maintainers || []) as Array<Record<string, unknown>>;
+    const repo = d.repository as string | Record<string, unknown> | undefined;
+
     const info: NpmPackageInfo = {
-      name: data.name,
+      name: d.name as string,
       version: latestVersion || 'unknown',
-      description: data.description,
+      description: d.description as string | undefined,
       createdAt: new Date(timeData.created || 0),
-      modifiedAt: new Date(timeData.modified || timeData[latestVersion] || 0),
+      modifiedAt: new Date(timeData.modified || (latestVersion ? timeData[latestVersion] : '') || 0),
       downloadsLastWeek,
-      maintainers: (data.maintainers || []).map((m: any) => m.name || m.email || 'unknown'),
+      maintainers: maintainersList.map((m) => (m.name || m.email || 'unknown') as string),
       hasInstallScripts,
-      repository: typeof data.repository === 'string' 
-        ? data.repository 
-        : data.repository?.url,
-      deprecated: versionData?.deprecated
+      repository: typeof repo === 'string'
+        ? repo
+        : (repo as Record<string, unknown> | undefined)?.url as string | undefined,
+      deprecated: versionData?.deprecated as string | undefined
     };
 
     return { exists: true, info };
@@ -136,8 +142,8 @@ async function getNpmDownloads(packageName: string): Promise<number> {
   
   if (!response.ok) return 0;
   
-  const data = await response.json() as any;
-  return data.downloads || 0;
+  const data = await response.json() as Record<string, unknown>;
+  return (data.downloads as number) || 0;
 }
 
 /**
@@ -164,9 +170,9 @@ export async function checkPypiPackage(packageName: string): Promise<RegistryChe
       };
     }
 
-    const data = await response.json() as any;
-    const info_data = data.info || {};
-    const releases = data.releases || {};
+    const data = await response.json() as Record<string, unknown>;
+    const info_data = (data.info || {}) as Record<string, unknown>;
+    const releases = (data.releases || {}) as Record<string, Array<Record<string, unknown>>>;
 
     // Find creation date from first release
     let createdAt: Date | undefined;
@@ -174,24 +180,26 @@ export async function checkPypiPackage(packageName: string): Promise<RegistryChe
     if (releaseVersions.length > 0) {
       const firstRelease = releases[releaseVersions[0]];
       if (firstRelease?.[0]?.upload_time) {
-        createdAt = new Date(firstRelease[0].upload_time);
+        createdAt = new Date(firstRelease[0].upload_time as string);
       }
     }
 
     // Check if latest version is yanked
-    const latestVersion = info_data.version;
-    const latestReleaseFiles = releases[latestVersion] || [];
-    const yanked = latestReleaseFiles.some((f: any) => f.yanked);
+    const latestVersion = info_data.version as string | undefined;
+    const latestReleaseFiles = (latestVersion ? releases[latestVersion] : undefined) || [];
+    const yanked = latestReleaseFiles.some((f) => f.yanked);
+
+    const project_urls = (info_data.project_urls || {}) as Record<string, string>;
 
     const info: PypiPackageInfo = {
-      name: info_data.name,
+      name: info_data.name as string,
       version: latestVersion || 'unknown',
-      description: info_data.summary,
+      description: info_data.summary as string | undefined,
       createdAt,
       maintainers: [info_data.author, info_data.maintainer].filter(Boolean) as string[],
-      repository: info_data.project_urls?.Source || 
-                  info_data.project_urls?.Repository ||
-                  info_data.home_page,
+      repository: project_urls.Source ||
+                  project_urls.Repository ||
+                  (info_data.home_page as string | undefined),
       yanked
     };
 

@@ -47,7 +47,7 @@ export function register(program: Command): void {
           return;
         }
 
-        const _config = await loadConfig();
+        await loadConfig();
         const authorId = 'default';
         await signSkill(skillPath, authorId);
 

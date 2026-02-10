@@ -13,11 +13,11 @@ export interface AstFinding {
 /**
  * Parse JavaScript/TypeScript source code into an AST
  */
-export declare function parseJS(source: string, filename: string): acorn.Node | null;
+export declare function parseJS(source: string, _filename: string): acorn.Node | null;
 /**
  * Analyze an AST for dangerous patterns
  */
-export declare function analyzeAST(ast: acorn.Node, source: string, filename: string): AstFinding[];
+export declare function analyzeAST(ast: acorn.Node, source: string, _filename: string): AstFinding[];
 /**
  * Convert AST findings to ClawGuard Finding format
  */

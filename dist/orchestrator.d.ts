@@ -23,7 +23,7 @@ export declare class Orchestrator {
      */
     scan(options: ScanOptions): Promise<ScanResult>;
     /**
-     * Validate that the skill path exists and is a directory
+     * Validate that the skill path exists, is a directory, and is safe to scan
      */
     private validateSkillPath;
 }

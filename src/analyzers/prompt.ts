@@ -14,7 +14,7 @@ import { existsSync } from 'fs';
 import { join, dirname } from 'path';
 import { parse as parseYaml } from 'yaml';
 import { fileURLToPath } from 'url';
-import type { Finding, Severity, SkillDocument, SkillMeta } from '../types.js';
+import type { Finding, Severity, SkillDocument } from '../types.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -178,7 +178,6 @@ export function detectHiddenWhitespace(text: string): Array<{
   const newlineMatches = text.matchAll(/\n{6,}/g);
   for (const match of newlineMatches) {
     if (match.index !== undefined) {
-      const before = text.slice(Math.max(0, match.index - 50), match.index);
       const after = text.slice(match.index + match[0].length, match.index + match[0].length + 50);
       
       findings.push({
@@ -463,7 +462,6 @@ function extractCapabilities(frontmatter: Record<string, unknown>): string[] {
  */
 function analyzeSemantics(doc: ParsedSkillDoc, filePath: string): Finding[] {
   const findings: Finding[] = [];
-  const text = doc.body.toLowerCase();
   
   // Check for unusual capability requests
   const capabilities = extractCapabilities(doc.frontmatter);
@@ -609,7 +607,7 @@ export class PromptAnalyzer {
               // Avoid duplicate findings for same pattern in same section
               break;
             }
-          } catch (e) {
+          } catch {
             console.warn(`Invalid regex pattern for ${pattern.id}: ${pattern.pattern}`);
           }
         } else if (pattern.check) {

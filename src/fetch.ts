@@ -8,7 +8,7 @@
  * - Direct zip: https://example.com/skill.zip
  */
 
-import { mkdtemp, rm, writeFile, mkdir } from 'fs/promises';
+import { mkdtemp, rm, mkdir } from 'fs/promises';
 import { tmpdir } from 'os';
 import { join, basename } from 'path';
 import { execSync } from 'child_process';
@@ -39,7 +39,7 @@ function parseGitHubUrl(url: string): {
   // https://github.com/owner/repo
   // https://github.com/owner/repo/tree/branch/path/to/skill
   const match = url.match(
-    /github\.com\/([^\/]+)\/([^\/]+)(?:\/tree\/([^\/]+)(?:\/(.+))?)?/
+    /github\.com\/([^/]+)\/([^/]+)(?:\/tree\/([^/]+)(?:\/(.+))?)?/
   );
   
   if (!match) return null;

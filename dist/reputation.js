@@ -116,7 +116,7 @@ async function cacheReputation(type, id, data) {
         await mkdir(dir, { recursive: true });
         await writeFile(join(dir, `${id}.json`), JSON.stringify(data));
     }
-    catch { }
+    catch { /* no-op */ }
 }
 async function getCachedReputation(type, id) {
     try {
@@ -135,12 +135,12 @@ async function queueReport(params) {
             const data = await readFile(queueFile, 'utf-8');
             queue = JSON.parse(data);
         }
-        catch { }
+        catch { /* no-op */ }
         queue.push({ ...params, queuedAt: new Date().toISOString() });
         await mkdir(LOCAL_CACHE, { recursive: true });
         await writeFile(queueFile, JSON.stringify(queue, null, 2));
     }
-    catch { }
+    catch { /* no-op */ }
 }
 /**
  * Flush pending reports

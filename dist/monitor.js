@@ -201,7 +201,7 @@ class SkillMonitor extends EventEmitter {
                 const data = await readFile(ALERTS_LOG, 'utf-8');
                 alerts = JSON.parse(data);
             }
-            catch { }
+            catch { /* no-op */ }
             alerts.push(alert);
             // Keep last 1000 alerts
             if (alerts.length > 1000) {
@@ -210,7 +210,7 @@ class SkillMonitor extends EventEmitter {
             await mkdir(join(homedir(), '.config', 'clawguard'), { recursive: true });
             await writeFile(ALERTS_LOG, JSON.stringify(alerts, null, 2));
         }
-        catch { }
+        catch { /* no-op */ }
     }
     async sendWebhook(alert) {
         if (!this.config.alertWebhook)

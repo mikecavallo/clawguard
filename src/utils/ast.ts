@@ -17,7 +17,7 @@ export interface AstFinding {
 /**
  * Parse JavaScript/TypeScript source code into an AST
  */
-export function parseJS(source: string, filename: string): acorn.Node | null {
+export function parseJS(source: string, _filename: string): acorn.Node | null {
   try {
     return acorn.parse(source, {
       ecmaVersion: 'latest',
@@ -103,7 +103,7 @@ function hasDynamicArgument(node: unknown): boolean {
 /**
  * Analyze an AST for dangerous patterns
  */
-export function analyzeAST(ast: acorn.Node, source: string, filename: string): AstFinding[] {
+export function analyzeAST(ast: acorn.Node, source: string, _filename: string): AstFinding[] {
   const findings: AstFinding[] = [];
   
   // Use simple walk with base

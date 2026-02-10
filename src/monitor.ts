@@ -9,14 +9,13 @@
  */
 
 import { watch } from 'fs';
-import { readFile, writeFile, mkdir, readdir, stat } from 'fs/promises';
+import { readFile, writeFile, mkdir } from 'fs/promises';
 import { join, basename } from 'path';
 import { homedir } from 'os';
 import { EventEmitter } from 'events';
 import { createOrchestrator } from './orchestrator.js';
 import { analyzeDiff, createSnapshot } from './diff.js';
 import { calculateSkillHash } from './database.js';
-import type { Finding } from './types.js';
 
 const MONITOR_CONFIG = join(homedir(), '.config', 'clawguard', 'monitor.json');
 const ALERTS_LOG = join(homedir(), '.config', 'clawguard', 'alerts.json');
@@ -262,10 +261,10 @@ class SkillMonitor extends EventEmitter {
       try {
         const data = await readFile(ALERTS_LOG, 'utf-8');
         alerts = JSON.parse(data);
-      } catch {}
-      
+      } catch { /* no-op */ }
+
       alerts.push(alert);
-      
+
       // Keep last 1000 alerts
       if (alerts.length > 1000) {
         alerts = alerts.slice(-1000);
@@ -273,7 +272,7 @@ class SkillMonitor extends EventEmitter {
 
       await mkdir(join(homedir(), '.config', 'clawguard'), { recursive: true });
       await writeFile(ALERTS_LOG, JSON.stringify(alerts, null, 2));
-    } catch {}
+    } catch { /* no-op */ }
   }
 
   private async sendWebhook(alert: Alert): Promise<void> {

@@ -6,7 +6,7 @@ import * as walk from 'acorn-walk';
 /**
  * Parse JavaScript/TypeScript source code into an AST
  */
-export function parseJS(source, filename) {
+export function parseJS(source, _filename) {
     try {
         return acorn.parse(source, {
             ecmaVersion: 'latest',
@@ -86,7 +86,7 @@ function hasDynamicArgument(node) {
 /**
  * Analyze an AST for dangerous patterns
  */
-export function analyzeAST(ast, source, filename) {
+export function analyzeAST(ast, source, _filename) {
     const findings = [];
     // Use simple walk with base
     walk.simple(ast, {

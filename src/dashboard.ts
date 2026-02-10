@@ -9,12 +9,7 @@
  */
 
 import { createServer, IncomingMessage, ServerResponse } from 'http';
-import { readFile } from 'fs/promises';
-import { join } from 'path';
-import { homedir } from 'os';
 import { getMonitor } from './monitor.js';
-import { getHistory } from './diff.js';
-import { glob } from 'glob';
 
 const DEFAULT_PORT = 18790;
 

@@ -10,7 +10,7 @@
 
 import { createSign, createVerify, generateKeyPairSync, createHash } from 'crypto';
 import { readFile, writeFile, mkdir } from 'fs/promises';
-import { join, basename } from 'path';
+import { join } from 'path';
 import { homedir } from 'os';
 import { glob } from 'glob';
 

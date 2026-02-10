@@ -95,7 +95,7 @@ export async function createSnapshot(skillPath: string): Promise<SkillSnapshot> 
   try {
     const pkg = await readFile(join(skillPath, 'package.json'), 'utf-8');
     version = JSON.parse(pkg).version;
-  } catch {}
+  } catch { /* no-op */ }
 
   const fullHash = createHash('sha256')
     .update(allContent.join('\n'))
@@ -315,5 +315,5 @@ export async function clearHistory(skillName: string): Promise<void> {
   const { unlink } = await import('fs/promises');
   try {
     await unlink(join(HISTORY_DIR, `${skillName}.json`));
-  } catch {}
+  } catch { /* no-op */ }
 }

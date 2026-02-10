@@ -46,7 +46,8 @@ const SCANNABLE_EXTENSIONS = new Set([
 
 // Extensions for AST analysis
 const JS_EXTENSIONS = new Set(['.js', '.mjs', '.cjs', '.jsx']);
-const TS_EXTENSIONS = new Set(['.ts', '.mts', '.cts', '.tsx']);
+// TS extensions for future AST analysis (currently pattern matching only)
+// const TS_EXTENSIONS = new Set(['.ts', '.mts', '.cts', '.tsx']);
 
 // Max file size to scan (skip huge files)
 const MAX_FILE_SIZE = 1024 * 1024; // 1MB
@@ -107,7 +108,7 @@ async function getAllFiles(dir: string, baseDir: string = dir): Promise<string[]
         }
       }
     }
-  } catch (err) {
+  } catch {
     // Directory might not exist or be unreadable
   }
   
@@ -174,6 +175,7 @@ function detectObfuscation(content: string, filename: string): Finding[] {
   const lines = content.split('\n');
   
   // Check for high ratio of non-printable or unusual characters
+  // eslint-disable-next-line no-control-regex
   const nonPrintableCount = (content.match(/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/g) || []).length;
   if (nonPrintableCount > 10) {
     findings.push({
@@ -319,7 +321,7 @@ async function analyzeFile(
     // For TypeScript, we do pattern matching but skip AST (acorn doesn't handle TS)
     // A future enhancement could use @typescript-eslint/parser
     
-  } catch (err) {
+  } catch {
     // File read error - might be binary or permission issue
   }
   

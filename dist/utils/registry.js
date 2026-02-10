@@ -37,11 +37,14 @@ export async function checkNpmPackage(packageName) {
             };
         }
         const data = await response.json();
-        const latestVersion = data['dist-tags']?.latest;
-        const versionData = latestVersion ? data.versions?.[latestVersion] : null;
-        const timeData = data.time || {};
+        const d = data;
+        const distTags = d['dist-tags'];
+        const latestVersion = distTags?.latest;
+        const versions = d.versions;
+        const versionData = latestVersion && versions ? versions[latestVersion] : null;
+        const timeData = (d.time || {});
         // Check for install scripts in the latest version
-        const scripts = versionData?.scripts || {};
+        const scripts = (versionData?.scripts || {});
         const hasInstallScripts = !!(scripts.preinstall ||
             scripts.install ||
             scripts.postinstall ||
@@ -56,18 +59,20 @@ export async function checkNpmPackage(packageName) {
         catch {
             // Ignore download fetch errors
         }
+        const maintainersList = (d.maintainers || []);
+        const repo = d.repository;
         const info = {
-            name: data.name,
+            name: d.name,
             version: latestVersion || 'unknown',
-            description: data.description,
+            description: d.description,
             createdAt: new Date(timeData.created || 0),
-            modifiedAt: new Date(timeData.modified || timeData[latestVersion] || 0),
+            modifiedAt: new Date(timeData.modified || (latestVersion ? timeData[latestVersion] : '') || 0),
             downloadsLastWeek,
-            maintainers: (data.maintainers || []).map((m) => m.name || m.email || 'unknown'),
+            maintainers: maintainersList.map((m) => (m.name || m.email || 'unknown')),
             hasInstallScripts,
-            repository: typeof data.repository === 'string'
-                ? data.repository
-                : data.repository?.url,
+            repository: typeof repo === 'string'
+                ? repo
+                : repo?.url,
             deprecated: versionData?.deprecated
         };
         return { exists: true, info };
@@ -114,8 +119,8 @@ export async function checkPypiPackage(packageName) {
             };
         }
         const data = await response.json();
-        const info_data = data.info || {};
-        const releases = data.releases || {};
+        const info_data = (data.info || {});
+        const releases = (data.releases || {});
         // Find creation date from first release
         let createdAt;
         const releaseVersions = Object.keys(releases);
@@ -127,16 +132,17 @@ export async function checkPypiPackage(packageName) {
         }
         // Check if latest version is yanked
         const latestVersion = info_data.version;
-        const latestReleaseFiles = releases[latestVersion] || [];
+        const latestReleaseFiles = (latestVersion ? releases[latestVersion] : undefined) || [];
         const yanked = latestReleaseFiles.some((f) => f.yanked);
+        const project_urls = (info_data.project_urls || {});
         const info = {
             name: info_data.name,
             version: latestVersion || 'unknown',
             description: info_data.summary,
             createdAt,
             maintainers: [info_data.author, info_data.maintainer].filter(Boolean),
-            repository: info_data.project_urls?.Source ||
-                info_data.project_urls?.Repository ||
+            repository: project_urls.Source ||
+                project_urls.Repository ||
                 info_data.home_page,
             yanked
         };

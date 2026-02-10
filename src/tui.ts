@@ -6,9 +6,7 @@
  */
 
 import { createInterface } from 'readline';
-import { stat, readFile } from 'fs/promises';
-import { join } from 'path';
-import { glob } from 'glob';
+import { stat } from 'fs/promises';
 import { createOrchestrator } from './orchestrator.js';
 import { formatResult } from './report.js';
 import { 
@@ -30,9 +28,6 @@ const BOLD = '\x1b[1m';
 const DIM = '\x1b[2m';
 const RESET = '\x1b[0m';
 const BG_RED = '\x1b[41m';
-const BG_GREEN = '\x1b[42m';
-const BG_BLUE = '\x1b[44m';
-const BG_BLACK = '\x1b[40m';
 const CORAL = '\x1b[38;2;255;77;77m';
 
 // Box drawing characters
@@ -120,15 +115,6 @@ function clearScreen(): void {
   process.stdout.write('\x1b[2J\x1b[H');
 }
 
-function printCentered(text: string, width = 70): void {
-  const lines = text.split('\n');
-  for (const line of lines) {
-    const stripped = line.replace(/\x1b\[[0-9;]*m/g, '');
-    const padding = Math.max(0, Math.floor((width - stripped.length) / 2));
-    console.log(' '.repeat(padding) + line);
-  }
-}
-
 function box(title: string, content: string[], width = 60): string {
   const lines: string[] = [];
   lines.push(`${GRAY}${BOX.tl}${BOX.h.repeat(width - 2)}${BOX.tr}${RESET}`);
@@ -140,6 +126,7 @@ function box(title: string, content: string[], width = 60): string {
   }
   
   for (const line of content) {
+    // eslint-disable-next-line no-control-regex
     const stripped = line.replace(/\x1b\[[0-9;]*m/g, '');
     const padding = width - 4 - stripped.length;
     lines.push(`${GRAY}${BOX.v}${RESET} ${line}${' '.repeat(Math.max(0, padding))} ${GRAY}${BOX.v}${RESET}`);
@@ -147,12 +134,6 @@ function box(title: string, content: string[], width = 60): string {
   
   lines.push(`${GRAY}${BOX.bl}${BOX.h.repeat(width - 2)}${BOX.br}${RESET}`);
   return lines.join('\n');
-}
-
-function progressBar(current: number, total: number, width = 30): string {
-  const filled = Math.round((current / total) * width);
-  const empty = width - filled;
-  return `${CORAL}${'█'.repeat(filled)}${GRAY}${'░'.repeat(empty)}${RESET}`;
 }
 
 /**
@@ -559,6 +540,7 @@ async function showDashboard(prompt: PromptInterface): Promise<string> {
     `${GREEN}${stats.threatsBlocked}${RESET} threats`,
     `${BLUE}${stats.skillsProtected}${RESET} protected`
   ].map(s => {
+    // eslint-disable-next-line no-control-regex
     const stripped = s.replace(/\x1b\[[0-9;]*m/g, '');
     const pad = Math.max(0, statWidth - stripped.length);
     return `  ${GRAY}│${RESET} ${s}${' '.repeat(pad)}`;
@@ -765,7 +747,7 @@ async function handleDatabaseCheck(prompt: PromptInterface): Promise<void> {
 /**
  * Handle view history
  */
-async function handleViewHistory(prompt: PromptInterface): Promise<void> {
+async function handleViewHistory(_prompt: PromptInterface): Promise<void> {
   clearScreen();
   console.log('');
   console.log(SMALL_BANNER);

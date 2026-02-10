@@ -185,7 +185,7 @@ async function cacheReputation(type: string, id: string, data: unknown): Promise
     const dir = join(LOCAL_CACHE, type);
     await mkdir(dir, { recursive: true });
     await writeFile(join(dir, `${id}.json`), JSON.stringify(data));
-  } catch {}
+  } catch { /* no-op */ }
 }
 
 async function getCachedReputation<T>(type: string, id: string): Promise<T | null> {
@@ -204,11 +204,11 @@ async function queueReport(params: unknown): Promise<void> {
     try {
       const data = await readFile(queueFile, 'utf-8');
       queue = JSON.parse(data);
-    } catch {}
+    } catch { /* no-op */ }
     queue.push({ ...params as object, queuedAt: new Date().toISOString() });
     await mkdir(LOCAL_CACHE, { recursive: true });
     await writeFile(queueFile, JSON.stringify(queue, null, 2));
-  } catch {}
+  } catch { /* no-op */ }
 }
 
 /**

@@ -709,14 +709,14 @@
     <div class="container">
       <div class="stats-grid">
         <div class="stat-item">
-          <div class="stat-number">36</div>
+          <div class="stat-number">60+</div>
           <div class="stat-label">Detection Patterns</div>
-          <div class="stat-desc">Static analysis rules</div>
+          <div class="stat-desc">Code, prompt &amp; supply chain rules</div>
         </div>
         <div class="stat-item">
-          <div class="stat-number">5</div>
-          <div class="stat-label">Scan Modes</div>
-          <div class="stat-desc">From fast to deep analysis</div>
+          <div class="stat-number">6</div>
+          <div class="stat-label">Analyzers</div>
+          <div class="stat-desc">Static, semantic, deps, chains, sandbox, honeypot</div>
         </div>
         <div class="stat-item">
           <div class="stat-number">100%</div>
@@ -738,7 +738,7 @@
       <div class="section-header">
         <h2 class="section-title">Defense in Depth</h2>
         <p class="section-subtitle">
-          Five layers of protection that catch what traditional security tools miss
+          Six independent analyzers that catch what traditional security tools miss
         </p>
       </div>
       
@@ -747,7 +747,7 @@
           <div class="feature-icon">⚡</div>
           <h3 class="feature-title">Static Analysis</h3>
           <p class="feature-desc">
-            36 patterns detecting credential theft, code injection, persistence, and obfuscation. Catches obvious attacks in milliseconds.
+            60+ patterns detecting credential theft, code injection, persistence, obfuscation, and crypto targeting. AST analysis catches what regex misses.
           </p>
         </div>
         
@@ -788,6 +788,22 @@
           <h3 class="feature-title">Threat Visualization</h3>
           <p class="feature-desc">
             Data flow graphs and attack chain diagrams. See exactly how threats move through your agent's skill ecosystem.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">📦</div>
+          <h3 class="feature-title">Supply Chain Scanner</h3>
+          <p class="feature-desc">
+            100+ known-bad packages across npm, PyPI, and Go. Typosquatting detection, registry validation, and maintainer change alerts.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🔏</div>
+          <h3 class="feature-title">Cryptographic Signing</h3>
+          <p class="feature-desc">
+            Sign and verify skills cryptographically. Build trust with auditor co-signatures and author reputation scores.
           </p>
         </div>
       </div>
@@ -834,6 +850,14 @@
           <h3 class="threat-title">Social Engineering</h3>
           <p class="threat-desc">
             Skills that manipulate the agent to bypass its own safety rules and expose sensitive data.
+          </p>
+        </div>
+
+        <div class="threat-card">
+          <div class="threat-icon">📦</div>
+          <h3 class="threat-title">Supply Chain Attacks</h3>
+          <p class="threat-desc">
+            Typosquatted packages, compromised dependencies, and malicious install scripts hiding in your skill's node_modules.
           </p>
         </div>
       </div>
@@ -896,7 +920,7 @@
       const lines = [
         { text: '$ clawguard scan ./suspicious-skill', type: 'prompt', delay: 500 },
         { text: '', type: 'output', delay: 200 },
-        { text: '🛡️  ClawGuard Security Scanner v2.1.0', type: 'output', delay: 300 },
+        { text: '🛡️  ClawGuard Security Scanner v1.0.1', type: 'output', delay: 300 },
         { text: '📂 Analyzing: ./suspicious-skill', type: 'output', delay: 400 },
         { text: '', type: 'output', delay: 200 },
         { text: '⚡ Static Analysis...', type: 'output', delay: 600 },

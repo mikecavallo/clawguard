@@ -23,7 +23,7 @@ export function isUrl(input) {
 function parseGitHubUrl(url) {
     // https://github.com/owner/repo
     // https://github.com/owner/repo/tree/branch/path/to/skill
-    const match = url.match(/github\.com\/([^\/]+)\/([^\/]+)(?:\/tree\/([^\/]+)(?:\/(.+))?)?/);
+    const match = url.match(/github\.com\/([^/]+)\/([^/]+)(?:\/tree\/([^/]+)(?:\/(.+))?)?/);
     if (!match)
         return null;
     return {
