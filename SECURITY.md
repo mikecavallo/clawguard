@@ -1,39 +1,13 @@
-# Security Policy
+# Security
 
-## Supported Versions
+## Known Vulnerabilities
 
-| Version | Supported |
-|---------|-----------|
-| 1.0.x   | Yes       |
+### Dev Dependencies (4 moderate)
 
-## Reporting a Vulnerability
+All 4 moderate vulnerabilities are in the `vitest` → `vite` → `esbuild` dev dependency chain (GHSA-67mh-4wv8-2f99). These only affect the development/test environment and do **not** ship in the published npm package.
 
-If you discover a security vulnerability in ClawGuard, please report it responsibly.
+Fix requires upgrading to vitest v4+ which is a breaking change. Will be addressed in a future release.
 
-**Do NOT open a public GitHub issue for security vulnerabilities.**
+## Reporting
 
-Instead, please email: **mikecavallo@gmail.com**
-
-Include:
-- Description of the vulnerability
-- Steps to reproduce
-- Potential impact
-- Suggested fix (if you have one)
-
-You should receive a response within 48 hours. We will work with you to understand the issue and coordinate a fix before any public disclosure.
-
-## Scope
-
-The following are in scope for security reports:
-
-- Vulnerabilities in ClawGuard's scanning logic that could cause false negatives (missing real threats)
-- Bypass techniques that evade detection
-- Vulnerabilities in the known-bad database API
-- Issues with how API keys or credentials are stored/handled
-- Path traversal or arbitrary file read via scan commands
-
-## Out of Scope
-
-- Issues in third-party dependencies (report those upstream)
-- Social engineering attacks against ClawGuard users
-- Denial of service against the CLI tool
+Report security issues to mike@cavallo.dev.

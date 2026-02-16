@@ -142,8 +142,8 @@ export async function buildIntentGraph(skillPath) {
             }
         }
     }
-    // Check for exec capabilities
-    const execPatterns = /exec\s*\(|spawn\s*\(|child_process|subprocess|\$\(|`[^`]+`/g;
+    // Check for exec capabilities (exclude regex.exec(), backtick code blocks in markdown)
+    const execPatterns = /child_process|subprocess|execSync|(?:cp|child)\.\s*exec\s*\(|(?:^|\s)spawn\s*\(|\$\([^)]+\)/gm;
     const execCapabilities = execPatterns.test(combinedContent);
     // Build risk assessment
     let riskAssessment = '';

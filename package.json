@@ -1,6 +1,6 @@
 {
   "name": "@dribgib/clawguard",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "publishConfig": {
     "access": "public"
   },
@@ -36,7 +36,7 @@
     "test": "vitest",
     "lint": "eslint src/",
     "scan": "node dist/cli.js",
-    "postinstall": "echo '\\n🛡️  ClawGuard installed! Run: clawguard init\\n'"
+    "postinstall": "node -e \"if(process.stdout.isTTY && !process.env.CI) console.log('\\n🛡️  ClawGuard installed! Run: clawguard init\\n')\""
   },
   "optionalDependencies": {
     "@anthropic-ai/sdk": "^0.52.0"

@@ -357,6 +357,35 @@ export function checkTyposquatPatterns(
   return null;
 }
 
+// Well-known packages that are NOT typosquats despite being close to popular names
+const KNOWN_GOOD_PACKAGES = new Set([
+  'acorn', 'acorn-walk', 'vitest', 'vite', 'esbuild', 'tsup', 'tslib',
+  'pnpm', 'yarn', 'bun', 'deno', 'tsx', 'ts-node', 'tsc',
+  'zod', 'zustand', 'jotai', 'immer', 'mitt', 'mri', 'cac',
+  'cors', 'cross-spawn', 'cross-env', 'dotenv', 'dotenvx',
+  'glob', 'globby', 'fast-glob', 'picomatch', 'minimatch',
+  'chalk', 'picocolors', 'kleur', 'ansi-colors',
+  'uuid', 'nanoid', 'cuid', 'ulid',
+  'yargs', 'yargs-parser', 'mri', 'cac', 'citty',
+  'debug', 'pino', 'winston', 'bunyan',
+  'jest', 'mocha', 'ava', 'tap', 'uvu',
+  'eslint', 'prettier', 'biome', 'oxlint',
+  'rollup', 'parcel', 'turbo', 'turborepo',
+  'express', 'koa', 'hono', 'fastify', 'hapi',
+  'react', 'preact', 'solid-js', 'svelte', 'vue', 'nuxt', 'next',
+  'redis', 'ioredis', 'pg', 'mysql', 'mysql2',
+  'mongoose', 'prisma', 'drizzle-orm', 'knex', 'sequelize', 'typeorm',
+  'axios', 'got', 'ky', 'undici', 'node-fetch',
+  'commander', 'inquirer', 'prompts', 'ora', 'listr2',
+  'lodash', 'ramda', 'remeda', 'radash',
+  'dayjs', 'date-fns', 'luxon', 'moment',
+  'sharp', 'jimp', 'canvas',
+  'socket.io', 'ws', 'uws',
+  'bcrypt', 'argon2', 'scrypt',
+  'yaml', 'toml', 'ini', 'json5',
+  'semver', 'compare-versions',
+]);
+
 /**
  * Comprehensive typosquat check combining distance and pattern detection
  */
@@ -369,6 +398,10 @@ export function detectTyposquat(
   type: 'distance' | 'pattern'; 
   detail: string;
 } | null {
+  // Skip known-good packages
+  if (KNOWN_GOOD_PACKAGES.has(name.toLowerCase())) {
+    return null;
+  }
   // Check Levenshtein distance first
   const distanceMatch = checkTyposquat(name, popularPackages, maxDistance);
   if (distanceMatch) {

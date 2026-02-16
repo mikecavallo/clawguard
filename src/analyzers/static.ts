@@ -9,8 +9,8 @@
  * - AST analysis for JS/TS
  */
 
-import { readFile, readdir, stat } from 'fs/promises';
-import { join, extname, relative } from 'path';
+import { readFile, readdir, stat, access } from 'fs/promises';
+import { join, extname, relative, basename } from 'path';
 import { parse as parseYaml } from 'yaml';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
@@ -77,17 +77,86 @@ async function loadPatterns(): Promise<CompiledPattern[]> {
   }
 }
 
+// Files always excluded from static analysis
+const EXCLUDED_FILENAMES = new Set([
+  'package-lock.json', 'yarn.lock', 'pnpm-lock.yaml', 'bun.lockb',
+]);
+
+/**
+ * Load .clawguardignore patterns from a directory
+ */
+async function loadIgnorePatterns(baseDir: string): Promise<string[]> {
+  const patterns: string[] = [];
+  try {
+    const content = await readFile(join(baseDir, '.clawguardignore'), 'utf-8');
+    for (const line of content.split('\n')) {
+      const trimmed = line.trim();
+      if (trimmed && !trimmed.startsWith('#')) {
+        patterns.push(trimmed);
+      }
+    }
+  } catch {
+    // No .clawguardignore file — that's fine
+  }
+  return patterns;
+}
+
+/**
+ * Check if a relative path matches any ignore pattern (simple glob matching)
+ */
+function matchesIgnorePattern(relPath: string, patterns: string[]): boolean {
+  for (const pattern of patterns) {
+    // Directory pattern (ends with /)
+    if (pattern.endsWith('/')) {
+      const dir = pattern.slice(0, -1);
+      if (relPath.startsWith(dir + '/') || relPath === dir) return true;
+    }
+    // Wildcard patterns
+    else if (pattern.includes('*')) {
+      const regex = new RegExp('^' + pattern.replace(/\./g, '\\.').replace(/\*/g, '.*') + '$');
+      if (regex.test(relPath) || regex.test(basename(relPath))) return true;
+    }
+    // Exact match or prefix match
+    else {
+      if (relPath === pattern || relPath.startsWith(pattern + '/')) return true;
+      if (basename(relPath) === pattern) return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * Check if src/ directory exists (for dist/ auto-exclusion)
+ */
+async function dirExists(path: string): Promise<boolean> {
+  try {
+    await access(path);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /**
  * Recursively get all files in a directory
  */
-async function getAllFiles(dir: string, baseDir: string = dir): Promise<string[]> {
+async function getAllFiles(dir: string, baseDir: string = dir, ignorePatterns?: string[], skipDist?: boolean): Promise<string[]> {
   const files: string[] = [];
+  
+  // On first call, load ignore patterns and check for dist/ exclusion
+  if (ignorePatterns === undefined) {
+    ignorePatterns = await loadIgnorePatterns(baseDir);
+    // Auto-exclude dist/ when src/ exists
+    const hasSrc = await dirExists(join(baseDir, 'src'));
+    skipDist = hasSrc;
+  }
   
   try {
     const entries = await readdir(dir, { withFileTypes: true });
     
     for (const entry of entries) {
       const fullPath = join(dir, entry.name);
+      const relPath = relative(baseDir, fullPath);
       
       // Skip hidden dirs, node_modules, etc.
       if (entry.name.startsWith('.') || 
@@ -98,8 +167,23 @@ async function getAllFiles(dir: string, baseDir: string = dir): Promise<string[]
         continue;
       }
       
+      // Skip dist/ when src/ exists
+      if (skipDist && entry.name === 'dist' && dir === baseDir) {
+        continue;
+      }
+      
+      // Skip files matching .clawguardignore patterns
+      if (matchesIgnorePattern(relPath, ignorePatterns!)) {
+        continue;
+      }
+      
+      // Skip lockfiles
+      if (EXCLUDED_FILENAMES.has(entry.name)) {
+        continue;
+      }
+      
       if (entry.isDirectory()) {
-        const subFiles = await getAllFiles(fullPath, baseDir);
+        const subFiles = await getAllFiles(fullPath, baseDir, ignorePatterns, skipDist);
         files.push(...subFiles);
       } else if (entry.isFile()) {
         const ext = extname(entry.name).toLowerCase();

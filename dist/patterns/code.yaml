@@ -55,9 +55,9 @@ patterns:
 
   - id: T-CODE-002
     name: hex-obfuscation
-    pattern: "\\\\x[0-9a-fA-F]{2}"
+    pattern: "\\\\x(?!1b\\[)[0-9a-fA-F]{2}"
     severity: medium
-    description: "Hex-encoded characters - potential obfuscation"
+    description: "Hex-encoded characters - potential obfuscation (ANSI escapes excluded)"
     remediation: "Review hex-encoded content for malicious intent"
 
   - id: T-CODE-002
@@ -230,7 +230,7 @@ patterns:
 
   - id: T-CODE-006
     name: child-process-exec
-    pattern: "child_process.*exec|execSync|spawn"
+    pattern: "child_process|execSync|\\bspawn\\s*\\(|\\bcp\\.exec|require\\(['\"]child_process['\"]\\)"
     severity: medium
     description: "Child process execution"
     remediation: "Verify shell commands are safe"
