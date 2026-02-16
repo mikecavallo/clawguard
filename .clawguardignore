@@ -1,0 +1,13 @@
+# ClawGuard ignore file
+# Exclude test fixtures (intentionally malicious samples)
+tests/fixtures/
+
+# Exclude pattern definition files (contain pattern examples)
+src/patterns/
+dist/patterns/
+
+# Exclude documentation with attack examples
+docs/
+
+# Exclude site
+site/

@@ -97,6 +97,7 @@ async function runLibraryScan(libraryPath, options) {
         process.exit(2);
     if (totalChains > 0)
         process.exit(1);
+    // Exit 0 on success (no chains found)
 }
 export function register(program) {
     program
