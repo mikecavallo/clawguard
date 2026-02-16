@@ -2,7 +2,7 @@
  * Analysis commands: graph, honeypot
  */
 import { scanForCredentialAccess, buildIntentGraph, renderGraphAscii, renderGraphMermaid, } from '../analyzers/index.js';
-const VERSION = '1.0.0';
+import { VERSION } from '../version.js';
 export function register(program) {
     // ========== GRAPH COMMAND ==========
     program

@@ -2,7 +2,7 @@
  * Info commands: version, ui, help, about
  */
 import { showHelp } from '../help.js';
-const VERSION = '1.0.0';
+import { VERSION } from '../version.js';
 export function register(program) {
     program
         .command('version')

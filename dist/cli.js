@@ -5,7 +5,7 @@
  */
 import { Command } from 'commander';
 import { registerScanCommands, registerLibraryCommands, registerAnalysisCommands, registerConfigCommands, registerToolCommands, registerServiceCommands, registerInfoCommands, registerUpdateCommands, } from './commands/index.js';
-const VERSION = '1.0.0';
+import { VERSION } from './version.js';
 function createProgram() {
     const program = new Command();
     program

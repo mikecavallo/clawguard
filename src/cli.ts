@@ -16,7 +16,7 @@ import {
   registerUpdateCommands,
 } from './commands/index.js';
 
-const VERSION = '1.0.0';
+import { VERSION } from './version.js';
 
 function createProgram(): Command {
   const program = new Command();

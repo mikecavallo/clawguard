@@ -11,7 +11,7 @@ import { loadConfig } from '../config.js';
 import { glob } from 'glob';
 import { join } from 'path';
 
-const VERSION = '1.0.0';
+import { VERSION } from '../version.js';
 
 async function runLibraryScan(
   libraryPath: string,

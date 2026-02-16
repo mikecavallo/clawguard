@@ -14,7 +14,7 @@ import {
 } from '../analyzers/index.js';
 import { fetchSkillFromUrl, isUrl } from '../fetch.js';
 
-const VERSION = '1.0.0';
+import { VERSION } from '../version.js';
 
 /**
  * Run standard scan on a single skill
@@ -29,6 +29,7 @@ async function runScan(
     staticOnly?: boolean;
     apiKey?: string;
     verbose?: boolean;
+    sourceLabel?: string;
   }
 ): Promise<void> {
   const outputFormat = (options.output || 'md') as OutputFormat;
@@ -77,6 +78,7 @@ async function runScan(
     apiKey: apiKey,
     output: outputFormat,
     verbose: options.verbose,
+    sourceLabel: options.sourceLabel,
   });
 
   const output = formatResult(result, outputFormat);
@@ -238,15 +240,17 @@ export function register(program: Command): void {
 
       try {
         let actualPath = skillPath;
+        let sourceLabel: string | undefined;
 
         if (isUrl(skillPath)) {
           fetchResult = await fetchSkillFromUrl(skillPath);
           actualPath = fetchResult.localPath;
-          console.log(`✓ Downloaded to ${actualPath}`);
+          sourceLabel = skillPath;
+          console.log(`✓ Fetched from ${skillPath}`);
           console.log('');
         }
 
-        await runScan(actualPath, options);
+        await runScan(actualPath, { ...options, sourceLabel });
 
       } catch (error) {
         console.error('Error:', (error as Error).message);
@@ -267,12 +271,31 @@ export function register(program: Command): void {
     .option('-o, --output <format>', 'Output format: json, md (default: md)', 'md')
     .option('--api-key <key>', 'Anthropic API key for semantic analysis')
     .option('-v, --verbose', 'Enable verbose output')
+    .option('--keep', 'Keep downloaded files after scan (for URLs)')
     .action(async (skillPath: string, options) => {
+      let fetchResult: Awaited<ReturnType<typeof fetchSkillFromUrl>> | null = null;
+
       try {
-        await runFullScan(skillPath, options);
+        let actualPath = skillPath;
+
+        if (isUrl(skillPath)) {
+          fetchResult = await fetchSkillFromUrl(skillPath);
+          actualPath = fetchResult.localPath;
+          console.log(`✓ Fetched from ${skillPath}`);
+          console.log('');
+        }
+
+        await runFullScan(actualPath, options);
+
       } catch (error) {
         console.error('Error:', (error as Error).message);
         process.exit(1);
+      } finally {
+        if (fetchResult && !options.keep) {
+          await fetchResult.cleanup();
+        } else if (fetchResult && options.keep) {
+          console.log(`\n📁 Files kept at: ${fetchResult.localPath}`);
+        }
       }
     });
 
@@ -293,7 +316,7 @@ export function register(program: Command): void {
           fetchResult = await fetchSkillFromUrl(skillPath);
           actualPath = fetchResult.localPath;
           if (!options.json) {
-            console.log(`✓ Downloaded to ${actualPath}`);
+            console.log(`✓ Fetched from ${skillPath}`);
           }
         }
 

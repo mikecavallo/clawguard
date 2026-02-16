@@ -47,6 +47,7 @@ export interface ScanOptions {
   output?: OutputFormat;
   verbose?: boolean;
   apiKey?: string;           // Anthropic API key for semantic analysis
+  sourceLabel?: string;      // Original URL for remote scans (shown in reports)
 }
 
 export interface ScanResult {

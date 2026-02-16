@@ -10,7 +10,7 @@ import {
   renderGraphMermaid,
 } from '../analyzers/index.js';
 
-const VERSION = '1.0.0';
+import { VERSION } from '../version.js';
 
 export function register(program: Command): void {
   // ========== GRAPH COMMAND ==========

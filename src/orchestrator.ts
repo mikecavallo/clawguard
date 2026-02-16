@@ -158,12 +158,25 @@ export class Orchestrator {
     await this.validateSkillPath(skillPath);
     
     if (options.verbose) {
-      console.log(`Scanning skill at: ${skillPath}`);
+      console.log(`Scanning skill at: ${options.sourceLabel || skillPath}`);
     }
     
     // Parse SKILL.md
     const meta = await parseSkillMd(skillPath);
-    
+
+    // For remote scans, show the original URL instead of temp path
+    if (options.sourceLabel) {
+      meta.path = options.sourceLabel;
+      // If no SKILL.md, the name defaults to the temp dir basename ("repo") — fix that
+      if (meta.name === path.basename(skillPath)) {
+        // Extract a meaningful name from the URL
+        const urlMatch = options.sourceLabel.match(/\/([^/]+?)(?:\.git)?(?:\/?|\?.*)?$/);
+        if (urlMatch) {
+          meta.name = urlMatch[1];
+        }
+      }
+    }
+
     if (options.verbose) {
       console.log(`Skill: ${meta.name}${meta.version ? ` v${meta.version}` : ''}`);
     }

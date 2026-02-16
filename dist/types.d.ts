@@ -40,6 +40,7 @@ export interface ScanOptions {
     output?: OutputFormat;
     verbose?: boolean;
     apiKey?: string;
+    sourceLabel?: string;
 }
 export interface ScanResult {
     skill: SkillMeta;
