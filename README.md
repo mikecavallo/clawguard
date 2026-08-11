@@ -583,3 +583,7 @@ MIT — use it, fork it, protect your agents.
 [GitHub](https://github.com/mikecavallo/clawguard) · [npm](https://www.npmjs.com/package/@dribgib/clawguard) · [Issues](https://github.com/mikecavallo/clawguard/issues)
 
 </div>
+
+#### AI Agent Marketplace Index And Agent Router | [API Doc](https://www.deepnlp.org/doc/ai_agent_marketplace)
+    [![AI Agent Marketplace and Router Badge](https://www.deepnlp.org/api/ai_agent_marketplace/svg?name=mikecavallo/clawguard&badge_type=review)](https://www.deepnlp.org/store/ai-agent/ai-agent/pub-mikecavallo/clawguard)
+    
